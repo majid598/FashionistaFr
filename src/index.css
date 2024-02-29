@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.load{
+    border-top-color: #333;
+    border: 5px solid #ddd;
+    animation: loader infinite 1s;
+}
+
+@keyframes loader {
+    100%{
+        rotate: 360deg;
+        border-top-color: black;
+    }
+}
