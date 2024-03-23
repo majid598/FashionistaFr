@@ -2,6 +2,10 @@ import { BiSolidDashboard } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import ProductCard from "../Components/ProductCard";
 import { Search as SearchIcon } from "@mui/icons-material";
+import { useGetAllProductsQuery } from "../redux/api/productApi";
+import Loader from "../Components/Loader";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 export const product = {
   _id: Date.now() + Math.random(),
@@ -13,38 +17,44 @@ export const product = {
   stock: 1,
 };
 
-export const products = [
-  {
-    _id: Date.now() + Math.random(),
-    price: "699",
-    title: "LUXUARY WATCH",
-    stock: 2,
-    img: "./assets/watch.jpg",
-    category: "watch",
-    reviews: 2,
-  },
-  {
-    _id: Date.now() + Math.random(),
-    price: "3909",
-    title: "VIVO Y24",
-    stock: 4,
-    img: "./assets/mo.jpg",
-    category: "mobile",
-    reviews: 6,
-  },
-  {
-    _id: Date.now() + Math.random(),
-    price: "699",
-    title: "MACBOOK",
-    stock: 8,
-    img: "./assets/macbook.webp",
-    category: "laptop",
-    reviews: 4,
-  },
-];
+// export const products = [
+//   {
+//     _id: Date.now() + Math.random(),
+//     price: "699",
+//     title: "LUXUARY WATCH",
+//     stock: 2,
+//     img: "./assets/watch.jpg",
+//     category: "watch",
+//     reviews: 2,
+//   },
+//   {
+//     _id: Date.now() + Math.random(),
+//     price: "3909",
+//     title: "VIVO Y24",
+//     stock: 4,
+//     img: "./assets/mo.jpg",
+//     category: "mobile",
+//     reviews: 6,
+//   },
+//   {
+//     _id: Date.now() + Math.random(),
+//     price: "699",
+//     title: "MACBOOK",
+//     stock: 8,
+//     img: "./assets/macbook.webp",
+//     category: "laptop",
+//     reviews: 4,
+//   },
+// ];
 
 const Products = () => {
-  return (
+  const { data, isLoading, isError, isSuccess } = useGetAllProductsQuery();
+
+  if (isError) toast.error("Cannot fetch the Products");
+  console.log(data ? data : "no data");
+  return isLoading ? (
+    <Loader />
+  ) : (
     <div className="w-full min-h-screen -calc">
       <div className="uper h-60 flex items-end px-12 py-8 justify-between bg-white/10">
         <h1 className="text-4xl font-mono">Our Products</h1>
@@ -69,7 +79,7 @@ const Products = () => {
       <div className="flex w-full gap-20">
         <div className="left w-1/4 bg-white/10 min-h-screen"></div>
         <div className="w-3/4 grid grid-cols-3 px-10 gap-10 py-10 pb-20 overflow-x-hidden-screen">
-          {products.map((product) => (
+          {data?.products.map((product) => (
             <ProductCard key={product} product={product} />
           ))}
         </div>

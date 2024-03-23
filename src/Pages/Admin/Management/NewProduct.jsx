@@ -7,38 +7,28 @@ import { toast } from "react-toastify";
 
 const NewProduct = () => {
   const [newProduct] = useNewProductMutation();
+  const [name, setname] = useState("");
+  const [price, setprice] = useState("");
+  const [photo, setphoto] = useState("");
+  const [stock, setstock] = useState("");
+  const [description, setdescription] = useState("");
+  const [category, setcategory] = useState("");
+  // const [productDetails, setproductDetails] = useState({
+  //   name: "",
+  //   price: 0,
+  //   photo: "",
+  //   stock: 1,
+  //   description: "",
+  //   category: "",
+  // });
 
-  const [productDetails, setproductDetails] = useState({
-    name: "",
-    price: 0,
-    photo: "",
-    stock: 1,
-    description: "",
-    category: "",
-  });
-
-  const changeHandler = (e) => {
-    setproductDetails({ ...productDetails, [e.target.name]: e.target.value });
-  };
+  // const changeHandler = (e) => {
+  //   setproductDetails({ ...productDetails, [e.target.name]: e.target.value });
+  // };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    try {
-      const data = await newProduct(productDetails);
-      if (data.success) {
-        setproductDetails({
-          name: "",
-          price: 0,
-          stock: 0,
-          description: "",
-          category: "",
-        });
-        toast.success(data.message);
-      }
-    } catch (error) {
-      toast.error("Can't Create a Product");
-    }
+    newProduct(name, price, photo, stock, description, category);
   };
 
   const btn = () => {
@@ -57,8 +47,8 @@ const NewProduct = () => {
                 type="file"
                 id="file"
                 name="photo"
-                onChange={changeHandler}
-                // value={productDetails.photo}
+                onChange={(e) => setphoto(e.target.value)}
+                value={photo}
                 hidden
               />
               <button
@@ -73,28 +63,28 @@ const NewProduct = () => {
               <Input
                 name="name"
                 holder="Name"
-                value={productDetails.name}
-                changeHandler={changeHandler}
+                value={name}
+                changeHandler={(e) => setname(e.target.value)}
               />
               <Input
                 type="number"
                 name="price"
                 holder="Price"
-                value={productDetails.price}
-                changeHandler={changeHandler}
+                value={price}
+                changeHandler={(e) => setprice(e.target.value)}
               />
               <Input
                 type="number"
                 name="stock"
                 holder="stock"
-                value={productDetails.stock}
-                changeHandler={changeHandler}
+                value={stock}
+                changeHandler={(e) => setstock(e.target.value)}
               />
               <Input
                 holder="Category"
                 name="category"
-                value={productDetails.category}
-                changeHandler={changeHandler}
+                value={category}
+                changeHandler={(e) => setcategory(e.target.value)}
               />
               <textarea
                 id=""
@@ -102,9 +92,9 @@ const NewProduct = () => {
                 cols="30"
                 rows="4"
                 placeholder="Description"
-                value={productDetails.description}
+                value={description}
                 name="description"
-                onChange={changeHandler}
+                onChange={(e) => setdescription(e.target.value)}
               ></textarea>
               <button
                 type="submit"
