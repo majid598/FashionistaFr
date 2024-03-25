@@ -12,7 +12,7 @@ export const user = {
   _id: Math.random(),
   name: "Majid ali",
   username: "raju",
-  email: "jalkdfjaldjfadsdf",
+  email: "Majidali@gmail.com",
   profile: "./assets/4.jpg",
   gender: "female",
   role: "admin",
