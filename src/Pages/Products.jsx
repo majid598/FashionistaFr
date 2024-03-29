@@ -7,7 +7,7 @@ export const product = {
   _id: Date.now() + Math.random(),
   price: 699,
   title: "LUXUARY WATCH",
-  img: "./assets/watch.jpg",
+  imgs: ["./assets/watch.jpg","./assets/3.jpg","./assets/5.jpg"],
   category: "watch",
   desc: "this is the most sold product on our site it has four variants white, red, blue, and the yellow",
   stock: 1,

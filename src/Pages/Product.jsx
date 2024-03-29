@@ -5,6 +5,7 @@ import { GoHeart } from "react-icons/go";
 import { product } from "./Products";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Product = () => {
   const navigate = useNavigate();
@@ -19,19 +20,25 @@ const Product = () => {
     }, 300);
   };
 
+  const [mainImage, setmainImage] = useState(product.imgs[0]);
+
   return (
     <div className="h-calc p-20">
       <div className="w-full h-full gap-16 overflow-hidden flex rounded-2xl">
         <div className="left w-3/5 flex gap-5 bg-white/10 rounded-2xl p-10">
           <div className="w-2/4 h-full">
             <div className="h-3/4 w-full rounded-2xl overflow-hidden">
-              <img src="../assets/watch.jpg" className="w-full h-full" alt="" />
+              <img src={`.${mainImage}`} className="w-full h-full" alt="" />
             </div>
             <div className="flex gap-4 mt-10">
-              <button className="w-16 h-16 bg-white rounded-md"></button>
-              <button className="w-16 h-16 bg-white rounded-md"></button>
-              <button className="w-16 h-16 bg-white rounded-md"></button>
-              <button className="w-16 h-16 bg-white rounded-md"></button>
+              {product.imgs.map((img) => (
+                <button
+                  className="w-16 h-16 bg-white rounded-md overflow-hidden focus:border-sky-500 border-2 border-transparent"
+                  onClick={() => setmainImage(img)}
+                >
+                  <img src={`.${img}`} alt="" className="w-full h-full" />
+                </button>
+              ))}
             </div>
           </div>
           <div className="w-2/4 px-10 h-full">
