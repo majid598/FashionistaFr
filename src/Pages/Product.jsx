@@ -4,10 +4,11 @@ import { FaCrown } from "react-icons/fa";
 import { GoHeart } from "react-icons/go";
 import { product } from "./Products";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 
 const Product = () => {
+
   const navigate = useNavigate();
   const cartHandler = () => {
     toast.success("Item Added To Cart");
