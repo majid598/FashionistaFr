@@ -5,5 +5,10 @@ const productReducer = createSlice({
   initialState: {},
   reducers: {},
 });
+const notificationReducer = createSlice({
+  name: "productReducer",
+  initialState: {},
+  reducers: {},
+});
 
-export { productReducer };
+export { productReducer, notificationReducer };

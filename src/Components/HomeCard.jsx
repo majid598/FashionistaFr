@@ -7,6 +7,7 @@ const HomeCard = ({ delay, w = "", top, h = "", img = "" }) => {
       style={{ width: w, height: h, top: top }}
     >
       <motion.img
+      id="img"
         initial={{
           opacity: 0,
           scale: 0,

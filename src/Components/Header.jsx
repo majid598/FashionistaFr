@@ -1,20 +1,42 @@
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CgShoppingCart } from "react-icons/cg";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { PiSignInBold } from "react-icons/pi";
-import { CgShoppingCart } from "react-icons/cg";
-import { motion } from "framer-motion";
-import { user } from "../main";
-import { Dialog, Tooltip } from "@mui/material";
-import { RiDashboardFill } from "react-icons/ri";
+import { Link, useNavigate } from "react-router-dom";
+// import { user } from "../main";
+import { Tooltip } from "@mui/material";
+import axios from "axios";
 import { useState } from "react";
+import { RiDashboardFill } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { userNotExists } from "../redux/reducers/userReducer";
+import { server } from "../redux/store";
 
-const Header = () => {
-  const [isProfile, setisProfile] = useState(false);
+// const user = false
+
+const Header = ({ user }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [isProfile, setIsProfile] = useState(false);
   const handlerDialog = () => {
-    setisProfile(true);
+    setIsProfile(true);
   };
   const handledismiss = () => {
-    setisProfile(false);
+    setIsProfile(false);
+  };
+
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
+      dispatch(userNotExists());
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    }
   };
 
   return (
@@ -45,12 +67,12 @@ const Header = () => {
             </Link>
           </Tooltip>
           {user ? (
-            <button onMouseEnter={handlerDialog}>
+            <button
+              onMouseEnter={handlerDialog}
+              className="border-2 border-white rounded-full"
+            >
               {user.profile ? (
-                <img
-                  src={`.${user.profile}`}
-                  className="w-8 h-8 rounded-full"
-                />
+                <img src={user.profile} className="w-8 h-8 rounded-full" />
               ) : (
                 <FaUser className="text-xl" />
               )}
@@ -69,6 +91,7 @@ const Header = () => {
           >
             <Link
               to={"/user/profile"}
+              onClick={() => setIsProfile(false)}
               className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
             >
               My Profile
@@ -77,6 +100,7 @@ const Header = () => {
               to={`${
                 user.role === "admin" ? "/admin/transactions" : "/myorders"
               }`}
+              onClick={() => setIsProfile(false)}
               className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
             >
               My Orders
@@ -84,24 +108,29 @@ const Header = () => {
             {user.role === "admin" ? (
               <Link
                 to={"/admin/dashboard"}
+                onClick={() => setIsProfile(false)}
                 className="w-full h-1/5 flex gap-2 items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
               >
                 <RiDashboardFill /> Dashboard
               </Link>
             ) : (
-              <Link className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer">
+              <Link onClick={() => setIsProfile(false)} className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer">
                 Cancelations
               </Link>
             )}
-            <Link className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer">
+            <Link
+              to={"/wishlist"}
+              onClick={() => setIsProfile(false)}
+              className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+            >
               WishList
             </Link>
-            <Link
-              to={"/logout"}
+            <button
+              onClick={logoutHandler}
               className="w-full h-1/5 gap-2 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
             >
               <FaSignOutAlt /> Logout
-            </Link>
+            </button>
           </div>
         )}
       </motion.div>

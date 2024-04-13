@@ -1,9 +1,68 @@
+import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { server } from "../redux/store";
+import { userExists } from "../redux/reducers/userReducer";
+import { useDispatch } from "react-redux";
+import { auth } from "../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login = () => {
-  const handlerSubmit = (e) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handlerSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/v1/user/login`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      dispatch(userExists(true));
+      toast.success(response.data?.message);
+      // You can save the token to localStorage or use Redux for state management
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const { user } = await signInWithPopup(auth, provider);
+      // console.log(user);
+      const response = await axios.post(
+        `http://localhost:5000/api/v1/user/login`,
+        {
+          email: user.email,
+          password: user.displayName,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      dispatch(userExists(true));
+      toast.success(response?.data?.message);
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    }
   };
 
   return (
@@ -14,12 +73,16 @@ const Login = () => {
           <input
             type="text"
             className="p-2 bg-transparent outline-none border-[1px] border-white/30 rounded-md"
-            placeholder="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
           />
           <input
-            type="text"
+            type="password"
             className="p-2 bg-transparent outline-none border-[1px] border-white/30 rounded-md"
-            placeholder="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <Link className="mt- text-center">Forgotten Account ?</Link>
           <input
@@ -31,6 +94,7 @@ const Login = () => {
         <hr className="mt-5" />
         <button
           type="button"
+          onClick={handleGoogleLogin}
           className="flex items-center rounded-md border-sky-500 border-[1px] mt-10"
         >
           <div className="w-1/5 flex items-center justify-center text-xl">

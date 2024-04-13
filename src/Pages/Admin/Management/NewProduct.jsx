@@ -2,43 +2,56 @@ import { useFileHandler } from "6pp";
 import { useState } from "react";
 import AdminLayout from "../../../Components/Admin/AdminLayout";
 import Input from "../../../Components/customComponents/Input";
-import { useNewProductMutation } from "../../../redux/api/productApi";
+import { useNewProductMutation } from "../../../redux/api/api";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const NewProduct = () => {
+  const navigate = useNavigate();
   const [newProduct] = useNewProductMutation();
+  const [previewImages, setPreviewImages] = useState([]);
+  const [images, setImages] = useState([]);
 
-  const [productDetails, setproductDetails] = useState({
-    name: "",
-    price: 0,
-    photo: "",
-    stock: 1,
-    description: "",
-    category: "",
-  });
-
-  const changeHandler = (e) => {
-    setproductDetails({ ...productDetails, [e.target.name]: e.target.value });
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const imageURLs = files.map((file) => URL.createObjectURL(file));
+    setImages(files);
+    setPreviewImages(imageURLs);
   };
+
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState(0);
+  const [stock, setStock] = useState(1);
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("stock", stock);
+    formData.append("category", category);
+    formData.append("description", description);
+    images.forEach((image, index) => {
+      formData.append(`images`, image);
+    });
+
     try {
-      const data = await newProduct(productDetails);
-      if (data.success) {
-        setproductDetails({
-          name: "",
-          price: 0,
-          stock: 0,
-          description: "",
-          category: "",
-        });
-        toast.success(data.message);
-      }
-    } catch (error) {
-      toast.error("Can't Create a Product");
+      const { data } = await newProduct(formData);
+      toast.success(data?.message);
+      navigate("/admin/products");
+    } catch (err) {
+      // setErrorMessage("Failed to create product");
     }
+  };
+
+  const removeImage = (index) => {
+    const updatedImages = [...images];
+    updatedImages.splice(index, 1);
+    setImages(updatedImages);
   };
 
   const btn = () => {
@@ -50,14 +63,28 @@ const NewProduct = () => {
         <div className="w-full h-full bg-white/5 flex gap-10">
           <form className="w-full flex gap-10" onSubmit={submitHandler}>
             <div className="w-3/5 flex justify-between relative p-10 bg-white/10 h-full">
-              <div className="w-44 h-44 bg-white">
-                <img src="" className="w-full h-full" alt="" />
+              <div className="">
+                <div className="w-44 h-44 bg-white">
+                  <img
+                    src={previewImages[0]}
+                    className="w-full h-full"
+                    alt=""
+                  />
+                </div>
+                {previewImages.length > 1 && (
+                  <div className="mt-5 flex gap-2">
+                    {previewImages.map((img, i) => (
+                      <img src={img} key={i} className="w-12 h-12" alt="" />
+                    ))}
+                  </div>
+                )}
               </div>
               <input
                 type="file"
                 id="file"
                 name="photo"
-                onChange={changeHandler}
+                onChange={handleImageChange}
+                multiple
                 // value={productDetails.photo}
                 hidden
               />
@@ -73,28 +100,28 @@ const NewProduct = () => {
               <Input
                 name="name"
                 holder="Name"
-                value={productDetails.name}
-                changeHandler={changeHandler}
+                value={name}
+                changeHandler={(e) => setName(e.target.value)}
               />
               <Input
                 type="number"
                 name="price"
                 holder="Price"
-                value={productDetails.price}
-                changeHandler={changeHandler}
+                value={price}
+                changeHandler={(e) => setPrice(e.target.value)}
               />
               <Input
                 type="number"
                 name="stock"
                 holder="stock"
-                value={productDetails.stock}
-                changeHandler={changeHandler}
+                value={stock}
+                changeHandler={(e) => setStock(e.target.value)}
               />
               <Input
                 holder="Category"
                 name="category"
-                value={productDetails.category}
-                changeHandler={changeHandler}
+                value={category}
+                changeHandler={(e) => setCategory(e.target.value)}
               />
               <textarea
                 id=""
@@ -102,9 +129,9 @@ const NewProduct = () => {
                 cols="30"
                 rows="4"
                 placeholder="Description"
-                value={productDetails.description}
+                value={description}
                 name="description"
-                onChange={changeHandler}
+                onChange={(e) => setDescription(e.target.value)}
               ></textarea>
               <button
                 type="submit"

@@ -1,10 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { productApi } from "./api/productApi";
-import { productReducer } from "./reducers/productReducer";
+import { api } from "./api/api";
+import { notificationReducer, productReducer } from "./reducers/productReducer";
+import authSlice from "./reducers/userReducer";
+
+export const server = "http://localhost:5000";
 
 export const store = configureStore({
   reducer: {
-    [productApi.name]: productApi.reducer,
+    [authSlice.name]: authSlice.reducer,
     [productReducer.name]: productReducer.reducer,
+    [api.reducerPath]: api.reducer,
   },
+  middleware: (mid) => [...mid(), api.middleware],
 });

@@ -3,6 +3,7 @@ import { useFileHandler } from "6pp";
 import { product } from "../../Products";
 import { useState } from "react";
 import { Delete as DeleteIcon } from "@mui/icons-material";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Button,
   Dialog,
@@ -12,14 +13,26 @@ import {
   Typography,
 } from "@mui/material";
 import Input from "../../../Components/customComponents/Input";
+import {
+  useDeleteProductMutation,
+  useGetProductByIdQuery,
+} from "../../../redux/api/api";
+import { toast } from "react-toastify";
 
 const ProductManagement = () => {
+  const navigate = useNavigate();
+
+  const productId = useParams();
+
+  const { data, isLoading } = useGetProductByIdQuery(productId.id);
+  const [deleteProduct] = useDeleteProductMutation();
+
   const [productDetails, setproductDetails] = useState({
-    name: product.title,
-    price: product.price,
-    stock: product.stock,
-    description: product.desc,
-    category: product.category,
+    name: data?.product?.name,
+    price: data?.product?.price,
+    stock: data?.product?.stock,
+    description: data?.product?.description,
+    category: data?.product?.category,
   });
 
   const changeHandler = (e) => {
@@ -31,13 +44,22 @@ const ProductManagement = () => {
     document.getElementById("file").click();
   };
 
-  const [isDelete, setisDelete] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
 
-  const handleDelete = () => {
-    setisDelete(true);
+  const handleDelete = async () => {
+    try {
+      const { data } = await deleteProduct(productId.id);
+      toast.success(data?.message);
+      console.log(data);
+      setIsDelete(false);
+      navigate("/admin/products");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Some thing went wrong");
+    }
   };
+
   const handleClose = () => {
-    setisDelete(false);
+    setIsDelete(false);
   };
 
   return (
@@ -62,18 +84,24 @@ const ProductManagement = () => {
                   <Button
                     style={{ color: "red" }}
                     className="h-10"
-                    onClick={handleClose}
+                    onClick={() => {
+                      setIsDelete(false);
+                    }}
                   >
                     Cancel
                   </Button>
-                  <Button className="h-10">Delete</Button>
+                  <Button onClick={handleDelete} className="h-10">
+                    Delete
+                  </Button>
                 </Stack>
               </div>
             </Dialog>
           )}
           <Tooltip title="Delete Product">
             <IconButton
-              onClick={handleDelete}
+              onClick={() => {
+                setIsDelete(true);
+              }}
               style={{
                 position: "absolute",
                 color: "red",
@@ -112,9 +140,9 @@ const ProductManagement = () => {
                   >
                     Change Photo
                   </button>
-                  <h2 className="mt-4">Name : {product.title}</h2>
-                  <h2 className="mt-4">Price : {product.price}</h2>
-                  <h2 className="mt-4">Stock : {product.stock}</h2>
+                  <h2 className="mt-4">Name : {data?.product?.name}</h2>
+                  <h2 className="mt-4">Price : {data?.product?.price}</h2>
+                  <h2 className="mt-4">Stock : {data?.product?.stock}</h2>
                 </div>
               </div>
               <div className="w-full h-12 mt-6 flex gap-5">
@@ -136,7 +164,7 @@ const ProductManagement = () => {
                 >
                   <div className="w-full overflow-hidden h-full bg-white/70 rounded-xl">
                     <img
-                      src={`../.${product.img}`}
+                      src={data?.product?.images[0]}
                       className="w-full h-full"
                       alt=""
                     />
@@ -156,7 +184,7 @@ const ProductManagement = () => {
                 </button>
               </div>
               <h1 className="mt-4">Description</h1>
-              <p className="w-3/4 mt-4">{product.desc}</p>
+              <p className="w-3/4 mt-4">{data?.product?.description}</p>
             </div>
             <div className="w-2/5 flex flex-col gap-4 h-full p-10 bg-white/10 text-black">
               <Input

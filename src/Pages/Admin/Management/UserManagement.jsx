@@ -1,4 +1,5 @@
 import AdminLayout from "../../../Components/Admin/AdminLayout";
+import { useParams, useNavigate } from "react-router-dom";
 import { useFileHandler } from "6pp";
 import { product } from "../../Products";
 import { useState } from "react";
@@ -12,17 +13,65 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { user } from "../../../main";
+import {
+  useDeleteUserMutation,
+  useGetUserByIdQuery,
+} from "../../../redux/api/api";
+import axios from "axios";
+import { server } from "../../../redux/store";
+import { toast } from "react-toastify";
 
 const UserManagement = () => {
+  const navigate = useNavigate();
+  const [menu, setMenu] = useState(false);
+
+  const userId = useParams();
+
+  const { data, isLoading } = useGetUserByIdQuery(userId.id);
+
+  const [deleteUser] = useDeleteUserMutation();
+  const deleteHandler = async () => {
+    const { data } = await deleteUser(userId.id)
+      .unwrap()
+      .then(() => {
+        toast.success(data?.message);
+        navigate("/admin/customers")
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message);
+      });
+  };
+
   const [isDelete, setisDelete] = useState(false);
-  const [role, setrole] = useState(user.role);
+  const [role, setRole] = useState(data?.user?.role);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/admin/user/role`,
+        {
+          userId: userId.id,
+          role,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      toast.success(response.data?.message);
+      navigate("/admin/customers");
+      setRole(data?.user?.role);
+      // You can save the token to localStorage or use Redux for state management
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
 
   const handleDelete = () => {
     setisDelete(true);
-  };
-  const handlRole = () => {
-    setisRole(true);
   };
   const handleClose = () => {
     setisDelete(false);
@@ -54,7 +103,9 @@ const UserManagement = () => {
                   >
                     Cancel
                   </Button>
-                  <Button className="h-10">Delete</Button>
+                  <Button className="h-10" onClick={deleteHandler}>
+                    Delete
+                  </Button>
                 </Stack>
               </div>
             </Dialog>
@@ -80,45 +131,76 @@ const UserManagement = () => {
             <div className="flex gap-20">
               <div className="w-44 h-44 bg-white">
                 <img
-                  src={`../.${user.profile}`}
+                  src={data?.user?.profile}
                   className="w-full h-full"
                   alt=""
                 />
               </div>{" "}
               <div className="flex flex-col">
                 <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Name:</span> {user.name}
+                  <span className="font-semibold">Name:</span>{" "}
+                  {data?.user?.name}
                 </h2>
                 <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
                   <span className="font-semibold">UserName:</span>{" "}
-                  {user.username}
+                  {data?.user?.username}
                 </h2>
                 <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Role:</span> {user.role}
+                  <span className="font-semibold">Role:</span>{" "}
+                  {data?.user?.role}
                 </h2>
                 <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Gender:</span> {user.gender}
+                  <span className="font-semibold">Gender:</span>{" "}
+                  {data?.user?.gender}
                 </h2>
                 <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Email:</span> {user.email}
+                  <span className="font-semibold">Email:</span>{" "}
+                  {data?.user?.email}
                 </h2>
+                <div>
+                  <h2>Joined At: {data?.user?.createdAt}</h2>
+                </div>
               </div>
             </div>
           </div>
           <div className="w-2/5 flex flex-col gap-4 h-full p-10 bg-white/10">
             <Typography variant="h4">Edit User Role ?</Typography>
-            <form>
-              <input
-                className="outline-none bg-transparent border rounded-sm p-2 w-full text-zinc-300"
-                name="role"
-                placeholder={"role"}
-                value={role}
-                onChange={(e) => setrole(e.target.value)}
-              />
+            <form onSubmit={handleSubmit}>
+              <div className="relative">
+                <input
+                  className="outline-none bg-transparent border rounded-sm p-2 w-full text-zinc-300"
+                  name="role"
+                  placeholder={"role"}
+                  readOnly
+                  value={role}
+                  onClick={() => setMenu((prev) => !prev)}
+                />
+                {menu && (
+                  <div className="w-1/2 py-4 mt-2 rounded-lg bg-white/5 flex flex-col">
+                    <button
+                      onClick={() => {
+                        setRole("user");
+                        setMenu(false);
+                      }}
+                      className="w-full hover:bg-white/10 py-2 text-start px-4"
+                    >
+                      user
+                    </button>
+                    <button
+                      onClick={() => {
+                        setRole("admin");
+                        setMenu(false);
+                      }}
+                      className="w-full hover:bg-white/10 py-2 text-start px-4"
+                    >
+                      admin
+                    </button>
+                  </div>
+                )}
+              </div>
               <Button
                 type="submit"
                 variant="contained"
-                onClick={handlRole}
                 style={{
                   padding: "1rem 0",
                   fontWeight: "bold",

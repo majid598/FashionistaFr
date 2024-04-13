@@ -14,8 +14,6 @@ import {
   RiDashboardFill,
   RiShoppingBag3Fill,
 } from "react-icons/ri";
-import { product } from "../../Pages/Products";
-import { user } from "../../main";
 import { Order } from "../../Pages/Admin/Transactions";
 const adminTabs = [
   {
@@ -27,19 +25,19 @@ const adminTabs = [
     name: "Products",
     path: "/admin/products",
     path2: "/admin/product/new",
-    path3: `/admin/product/${product._id}`,
+    path3: `/admin/product/:id`,
     icon: <RiShoppingBag3Fill />,
   },
   {
     name: "Customers",
     path: "/admin/customers",
-    path2: `/admin/user/${user._id}`,
+    path2: `/admin/user/:id`,
     icon: <IoIosPeople />,
   },
   {
     name: "Transactions",
     path: "/admin/transactions",
-    path2: `/admin/transaction/${Order._id}`,
+    path2: `/admin/transaction/:id`,
     icon: <AiFillFileText />,
   },
 ];
