@@ -13,9 +13,14 @@ import axios from "axios";
 import { userExists, userNotExists } from "./redux/reducers/userReducer";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Test from "./Test";
-import WishList from "./Pages/WishList";
+import ProfilePhoto from "./Pages/ProfilePhoto";
+import Cancelations from "./Pages/Cancelations";
 
 const Home = lazy(() => import("./Pages/Home"));
+const WishList = lazy(() => import("./Pages/WishList"));
+const CheakOut = lazy(() => import("./Pages/CheakOut"));
+const OtherUser = lazy(() => import("./Pages/OtherUser"));
+const Orders = lazy(() => import("./Pages/Orders"));
 const NotFound = lazy(() => import("./Components/NotFound"));
 const Products = lazy(() => import("./Pages/Products"));
 const About = lazy(() => import("./Pages/About"));
@@ -90,8 +95,13 @@ const App = () => {
           <Route element={<ProtectedRoute user={user} />}>
             <Route path="/user/profile" element={<Profile user={user} />} />
             <Route path="/shipping" element={<Shipping />} />
+            <Route path="/pay" element={<CheakOut />} />
             <Route path="/wishlist" element={<WishList />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/user/:id" element={<OtherUser />} />
+            <Route path="/user/:id/profile" element={<ProfilePhoto />} />
+            <Route path="/cancelations" element={<Cancelations />} />
+            <Route path="/user/orders" element={<Orders />} />
           </Route>
           <Route>
             <Route

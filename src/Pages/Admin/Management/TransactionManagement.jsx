@@ -1,6 +1,4 @@
 import AdminLayout from "../../../Components/Admin/AdminLayout";
-import { useFileHandler } from "6pp";
-import { product } from "../../Products";
 import { useState } from "react";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import {
@@ -12,11 +10,25 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { user } from "../../../main";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetAdminSingleOrderQuery,
+  useUpdateOrderStatusMutation,
+} from "../../../redux/api/api";
+import { toast } from "react-toastify";
+import Loader from "../../../Components/Loader";
+import { server } from "../../../redux/store";
+import moment from "moment/moment";
 
 const TransactionManagement = () => {
+  const navigate = useNavigate();
+  const orderId = useParams().id;
+  const { data, isLoading, isError } = useGetAdminSingleOrderQuery(orderId);
   const [isDelete, setisDelete] = useState(false);
-  const [role, setrole] = useState(user.role);
+  const [updateStatus] = useUpdateOrderStatusMutation();
+
+  const order = data?.order;
+  const user = data?.user;
 
   const handleDelete = () => {
     setisDelete(true);
@@ -28,87 +40,113 @@ const TransactionManagement = () => {
     setisDelete(false);
   };
 
-  return (
-    <AdminLayout>
-      <div className="w-fix h-calc p-20 bg-white/10">
-        <div className="w-full h-full bg-white/5 flex gap-10 relative">
-          {isDelete && (
-            <Dialog open={handleDelete} onClose={handleClose}>
-              <div className="w-[25vw] h-[25vh] p-5 bg-[#d1d1d1]">
-                <Typography variant="h6" className="text-red-500">
-                  Confrim Delete
-                </Typography>
-                <Typography className="mt-10" style={{ marginTop: 20 }}>
-                  Are Shure You Want To Delete This Order ?
-                </Typography>
-                <Stack
-                  direction={"row"}
-                  alignItems={"flex-end"}
-                  justifyContent={"flex-end"}
-                  height={"60%"}
-                >
-                  <Button
-                    style={{ color: "red" }}
-                    className="h-10"
-                    onClick={handleClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button className="h-10">Delete</Button>
-                </Stack>
-              </div>
-            </Dialog>
-          )}
-          <Tooltip title="Delete Product">
-            <IconButton
-              onClick={handleDelete}
-              style={{
-                position: "absolute",
-                color: "red",
-                cursor: "pointer",
-                zIndex: "99",
-                right: -20,
-                top: -20,
-                borderRadius: "50%",
-                backgroundColor: "white",
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-          <div className="w-3/5 relative p-10 bg-white/10 h-full">
-            <div className="flex gap-20">
-              <div className="w-44 h-44 bg-white">
+  const updateHandler = async () => {
+    await updateStatus(orderId)
+      .unwrap()
+      .then((data) => {
+        toast.success(data?.message);
+        navigate("/admin/transactions");
+      })
+      .catch((err) => toast.error(err.data.message));
+  };
+
+  if (isError) return toast.error("Order Not Found");
+
+  return isLoading ? (
+    <Loader />
+  ) : (
+    <div className="h-calc w-full p-20 px-40">
+      <div className="w-full h-full bg-white/10 overflow-hidden rounded-3xl flex">
+        <div className="h-full w-3/5 p-10 relative">
+          <div className="flex justify-between">
+            <h2>Order_ID: - {order._id}</h2>
+            <h2>
+              Status: -{" "}
+              <span
+                className={`font-semibold w-1/5 text-start ${
+                  order.status === "Delivered"
+                    ? "text-purple-500"
+                    : order.status === "Shipped"
+                    ? "text-green-500"
+                    : order.status === "Canceled"
+                    ? "text-red-500"
+                    : "text-sky-500"
+                }`}
+              >
+                {order.status}
+              </span>
+            </h2>
+          </div>
+          <h2 className="mt-2">Amount: -{order.totalAmount} PKR</h2>
+          <h2 className="mt-2">Order_Items:</h2>
+          <div className="h-[45vh] overflow-y-scroll">
+            {order.orderItems?.map((item, index) => (
+              <div
+                key={index}
+                className="h-40 w-full bg-white/5 rounded-xl mt-5 p-4 flex"
+              >
                 <img
-                  src={`../.${user.profile}`}
-                  className="w-full h-full"
+                  src={`${server}/${item.img}`}
+                  className="h-full w-36 rounded-xl"
                   alt=""
                 />
-              </div>{" "}
-              <div className="flex flex-col">
-                <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Name:</span> {user.name}
-                </h2>
-                <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">UserName:</span>{" "}
-                  {user.username}
-                </h2>
-                <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Role:</span> {user.role}
-                </h2>
-                <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Gender:</span> {user.gender}
-                </h2>
-                <h2 className="mt-4 flex items-center text-zinc-300 justify-between gap-3">
-                  <span className="font-semibold">Email:</span> {user.email}
-                </h2>
+                <div className="px-4">
+                  <h2>Name</h2>
+                  <h2>Price</h2>
+                  <h2>Quantity</h2>
+                </div>
+                <div className="px-4">
+                  <h2>:</h2>
+                  <h2>:</h2>
+                  <h2>:</h2>
+                </div>
+                <div className="px-4">
+                  <h2>{item.name}</h2>
+                  <h2>{item.price} PKR</h2>
+                  <h2>{item.quantity}</h2>
+                </div>
               </div>
+            ))}
+          </div>
+          <div className="w-[2px] h-full py-10 absolute right-0 top-0">
+            <div className="w-full rounded-3xl h-full bg-white/10"></div>
+          </div>
+        </div>
+        <div className="h-full w-2/5 py-20 flex flex-col items-center">
+          <div className="bg-zinc-400 border-2 border-white w-24 h-24 rounded-full overflow-hidden">
+            <img src={user?.profile} className="w-full h-full" alt="" />
+          </div>
+          <div className="w-full mt-5 flex gap-2 px-20">
+            <div className="">
+              <h2>Name:</h2>
+              <h2>Role:</h2>
+              <h2>Email:</h2>
+              <h2>Joined:</h2>
+            </div>
+            <div className="">
+              <h2>- </h2>
+              <h2>- </h2>
+              <h2>- </h2>
+              <h2>- </h2>
+            </div>
+            <div className="">
+              <h2>{user?.name}</h2>
+              <h2>{user?.role}</h2>
+              <h2>{user?.email}</h2>
+              <h2>{moment(user?.createdAt).calendar()}</h2>
             </div>
           </div>
-          <div className="w-2/5 flex flex-col gap-4 h-full p-10 bg-white/10"></div>
+          <div className="w-full px-20 mt-20">
+            <button
+              onClick={updateHandler}
+              className="w-full rounded-md hover:bg-sky-600 transition-all duration-300 p-3 bg-sky-500 text-white font-bold"
+            >
+              Update Status
+            </button>
+          </div>
         </div>
       </div>
-    </AdminLayout>
+    </div>
   );
 };
 

@@ -19,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/user/login`,
+        `${server}/api/v1/user/login`,
         {
           email,
           password,
@@ -45,7 +45,7 @@ const Login = () => {
       const { user } = await signInWithPopup(auth, provider);
       // console.log(user);
       const response = await axios.post(
-        `http://localhost:5000/api/v1/user/login`,
+        `${server}/api/v1/user/login`,
         {
           email: user.email,
           password: user.displayName,

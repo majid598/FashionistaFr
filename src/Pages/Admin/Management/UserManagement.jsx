@@ -1,7 +1,6 @@
 import AdminLayout from "../../../Components/Admin/AdminLayout";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFileHandler } from "6pp";
-import { product } from "../../Products";
 import { useState } from "react";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@mui/material";
 import {
   useDeleteUserMutation,
+  useEditUserRoleMutation,
   useGetUserByIdQuery,
 } from "../../../redux/api/api";
 import axios from "axios";
@@ -31,43 +31,34 @@ const UserManagement = () => {
 
   const [deleteUser] = useDeleteUserMutation();
   const deleteHandler = async () => {
-    const { data } = await deleteUser(userId.id)
+    await deleteUser(userId.id)
       .unwrap()
-      .then(() => {
+      .then((data) => {
         toast.success(data?.message);
-        navigate("/admin/customers")
+        navigate("/admin/customers");
       })
       .catch((error) => {
-        toast.error(error?.response?.data?.message);
+        toast.error(error?.data?.message);
       });
   };
 
   const [isDelete, setisDelete] = useState(false);
   const [role, setRole] = useState(data?.user?.role);
 
+  const [editRole] = useEditUserRoleMutation();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/v1/admin/user/role`,
-        {
-          userId: userId.id,
-          role,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      toast.success(response.data?.message);
-      navigate("/admin/customers");
-      setRole(data?.user?.role);
-      // You can save the token to localStorage or use Redux for state management
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-    }
+    const data = {
+      userId: userId.id,
+      role,
+    };
+    editRole(data)
+      .unwrap()
+      .then((data) => {
+        navigate("/admin/customers");
+        toast.success(data?.message);
+      })
+      .catch((err) => toast.error(error?.data?.message));
   };
 
   const handleDelete = () => {

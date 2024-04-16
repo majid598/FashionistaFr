@@ -7,6 +7,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import { useDispatch } from "react-redux";
 import { userExists } from "../redux/reducers/userReducer";
+import { server } from "../redux/store";
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/user/new`,
+        `${server}/api/v1/user/new`,
         userDetails,
         {
           withCredentials: true,
@@ -48,7 +49,7 @@ const Signup = () => {
       const { user } = await signInWithPopup(auth, provider);
       // console.log(user);
       const response = await axios.post(
-        `http://localhost:5000/api/v1/user/new`,
+        `${server}/api/v1/user/new`,
         {
           name: user.displayName,
           profile: user.photoURL,

@@ -1,6 +1,5 @@
 import AdminLayout from "../../../Components/Admin/AdminLayout";
 import { useFileHandler } from "6pp";
-import { product } from "../../Products";
 import { useState } from "react";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
@@ -16,18 +15,21 @@ import Input from "../../../Components/customComponents/Input";
 import {
   useDeleteProductMutation,
   useGetProductByIdQuery,
+  useUpdateProductMutation,
 } from "../../../redux/api/api";
+import { server } from "../../../redux/store";
 import { toast } from "react-toastify";
 
 const ProductManagement = () => {
   const navigate = useNavigate();
 
-  const productId = useParams();
+  const productId = useParams().id;
 
-  const { data, isLoading } = useGetProductByIdQuery(productId.id);
+  const { data, isLoading } = useGetProductByIdQuery(productId);
   const [deleteProduct] = useDeleteProductMutation();
 
   const [productDetails, setproductDetails] = useState({
+    productId,
     name: data?.product?.name,
     price: data?.product?.price,
     stock: data?.product?.stock,
@@ -48,7 +50,7 @@ const ProductManagement = () => {
 
   const handleDelete = async () => {
     try {
-      const { data } = await deleteProduct(productId.id);
+      const { data } = await deleteProduct(productId);
       toast.success(data?.message);
       console.log(data);
       setIsDelete(false);
@@ -60,6 +62,19 @@ const ProductManagement = () => {
 
   const handleClose = () => {
     setIsDelete(false);
+  };
+  const [updateProduct] = useUpdateProductMutation();
+  const submitHandler = (e) => {
+    e.preventDefault();
+    updateProduct(productDetails)
+      .unwrap()
+      .then((data) => {
+        navigate("/admin/products");
+        toast.success(data?.message);
+      })
+      .catch((err) => {
+        toast.error(err?.data?.message);
+      });
   };
 
   return (
@@ -116,12 +131,12 @@ const ProductManagement = () => {
               <DeleteIcon />
             </IconButton>
           </Tooltip>
-          <form className="w-full flex gap-10">
+          <form className="w-full flex gap-10" onSubmit={submitHandler}>
             <div className="w-3/5 relative p-10 bg-white/10 h-full">
               <div className="flex gap-20">
                 <div className="w-44 h-44 bg-white">
                   <img
-                    src={`../.${product.img}`}
+                    src={`${server}/${data?.product?.images[0]}`}
                     className="w-full h-full"
                     alt=""
                   />
@@ -145,43 +160,21 @@ const ProductManagement = () => {
                   <h2 className="mt-4">Stock : {data?.product?.stock}</h2>
                 </div>
               </div>
-              <div className="w-full h-12 mt-6 flex gap-5">
-                <button
-                  type="button"
-                  className="w-12 h-full focus:ring-4 rounded-xl p-1 border-sky-500"
-                >
-                  <div className="w-full h-full bg-white/70 overflow-hidden rounded-xl">
-                    <img
-                      src={`../.${product.img}`}
-                      className="w-full h-full"
-                      alt=""
-                    />
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="w-12 h-full focus:ring-4 rounded-xl p-1 border-sky-500"
-                >
-                  <div className="w-full overflow-hidden h-full bg-white/70 rounded-xl">
-                    <img
-                      src={data?.product?.images[0]}
-                      className="w-full h-full"
-                      alt=""
-                    />
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="w-12 h-full focus:ring-4 rounded-xl p-1 border-sky-500"
-                >
-                  <div className="w-full overflow-hidden h-full bg-white/70 rounded-xl">
-                    <img
-                      src={`../.${product.img}`}
-                      className="w-full h-full"
-                      alt=""
-                    />
-                  </div>
-                </button>
+              <div className="w-full h-12 mt-6 flex">
+                {data?.product?.images?.map((img) => (
+                  <button
+                    type="button"
+                    className="w-12 h-full focus:ring-4 rounded-xl p-1 border-sky-500"
+                  >
+                    <div className="w-full h-full bg-white/70 overflow-hidden rounded-xl">
+                      <img
+                        src={`${server}/${img}`}
+                        className="w-full h-full"
+                        alt=""
+                      />
+                    </div>
+                  </button>
+                ))}
               </div>
               <h1 className="mt-4">Description</h1>
               <p className="w-3/4 mt-4">{data?.product?.description}</p>

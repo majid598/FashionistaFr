@@ -44,7 +44,7 @@ const NewProduct = () => {
       toast.success(data?.message);
       navigate("/admin/products");
     } catch (err) {
-      // setErrorMessage("Failed to create product");
+      toast.error(err?.response?.data?.message);
     }
   };
 
@@ -82,6 +82,7 @@ const NewProduct = () => {
               <input
                 type="file"
                 id="file"
+                accept="image/*"
                 name="photo"
                 onChange={handleImageChange}
                 multiple

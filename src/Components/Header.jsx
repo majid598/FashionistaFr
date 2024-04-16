@@ -71,8 +71,8 @@ const Header = ({ user }) => {
               onMouseEnter={handlerDialog}
               className="border-2 border-white rounded-full"
             >
-              {user.profile ? (
-                <img src={user.profile} className="w-8 h-8 rounded-full" />
+              {user?.profile ? (
+                <img src={user?.profile} className="w-8 h-8 rounded-full" />
               ) : (
                 <FaUser className="text-xl" />
               )}
@@ -96,35 +96,55 @@ const Header = ({ user }) => {
             >
               My Profile
             </Link>
-            <Link
-              to={`${
-                user.role === "admin" ? "/admin/transactions" : "/myorders"
-              }`}
-              onClick={() => setIsProfile(false)}
-              className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
-            >
-              My Orders
-            </Link>
-            {user.role === "admin" ? (
-              <Link
-                to={"/admin/dashboard"}
-                onClick={() => setIsProfile(false)}
-                className="w-full h-1/5 flex gap-2 items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
-              >
-                <RiDashboardFill /> Dashboard
-              </Link>
+            {user?.role === "admin" ? (
+              <>
+                <Link
+                  to={"/admin/transactions"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  Transactions
+                </Link>
+                <Link
+                  to={"/admin/dashboard"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex gap-2 items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  <RiDashboardFill /> Dashboard
+                </Link>
+                <Link
+                  to={"/orders/history"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex gap-2 items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  Orders History
+                </Link>
+              </>
             ) : (
-              <Link onClick={() => setIsProfile(false)} className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer">
-                Cancelations
-              </Link>
+              <>
+                <Link
+                  to={"/user/orders"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  My Orders
+                </Link>
+                <Link
+                to={"/cancelations"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  Cancelations
+                </Link>
+                <Link
+                  to={"/wishlist"}
+                  onClick={() => setIsProfile(false)}
+                  className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
+                >
+                  WishList
+                </Link>
+              </>
             )}
-            <Link
-              to={"/wishlist"}
-              onClick={() => setIsProfile(false)}
-              className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
-            >
-              WishList
-            </Link>
             <button
               onClick={logoutHandler}
               className="w-full h-1/5 gap-2 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
