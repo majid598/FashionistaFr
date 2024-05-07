@@ -34,10 +34,12 @@ const Product = () => {
 
   const navigate = useNavigate();
   const cartHandler = () => {
+    if (data?.product?.stock <= 0) return toast.error("Out of stock");
     dispatch(
       addToCart({
         id: data?.product?._id,
         name: data?.product?.name,
+        stock: data?.product?.stock,
         price: data?.product?.price,
         img: data?.product?.images[0],
       })
@@ -46,6 +48,7 @@ const Product = () => {
   };
 
   const buyNow = () => {
+    if (data?.product?.stock <= 0) return toast.error("Out of stock");
     dispatch(
       addToCart({
         id: data?.product?._id,
@@ -208,7 +211,7 @@ const Product = () => {
             <div className="w-2/4 h-full">
               <div className="h-3/4 w-full rounded-2xl overflow-hidden">
                 <img
-                  src={`${server}/${data?.product.images[0]}`}
+                  src={mainImage ? mainImage : data?.product?.images[0]}
                   className="w-full h-full"
                   alt=""
                 />
@@ -219,11 +222,7 @@ const Product = () => {
                     className="w-16 h-16 bg-white rounded-md overflow-hidden focus:border-sky-500 border-2 border-transparent"
                     onClick={() => setMainImage(img)}
                   >
-                    <img
-                      src={`${server}/${img}`}
-                      alt=""
-                      className="w-full h-full"
-                    />
+                    <img src={img} alt="" className="w-full h-full" />
                   </button>
                 ))}
               </div>

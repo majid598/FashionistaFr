@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
         <div className="card w-full rounded-xl h-72 overflow-hidden relative">
           <img
             className="w-full h-full  hover:scale-125 transition-all duration-200"
-            src={`${server}/${product.images[0]}`}
+            src={product.images[0]}
             alt=""
           />
         </div>

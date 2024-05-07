@@ -1,82 +1,39 @@
-import React, { useState } from 'react';
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
+import React, { useState } from "react";
+import axios from "axios";
+import { server } from "./redux/store";
 
-function StarRating({ initialRating }) {
-  const [rating, setRating] = useState(initialRating || 0);
-  const [hover, setHover] = useState(null);
-  const [comment, setComment] = useState('');
+function UploadProfilePic() {
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleRatingClick = (clickedRating) => {
-    const newRating = Math.round(clickedRating * 2) / 2;
-    setRating(newRating);
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
   };
 
-  const handleRatingHover = (hoveredRating) => {
-    setHover(hoveredRating);
-  };
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("image", selectedFile);
 
-  const handleRatingLeave = () => {
-    setHover(null);
-  };
-
-  const handleCommentChange = (event) => {
-    setComment(event.target.value);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Here you can submit the rating and comment to your backend
-    console.log("Rating:", rating);
-    console.log("Comment:", comment);
+    await axios
+      .post(`${server}/api/v1/user/upload`, formData)
+      .then((response) => {
+        console.log("Upload successful:", response.data);
+        // Handle success
+      })
+      .catch((error) => {
+        console.error("Upload failed:", error);
+        // Handle error
+      });
   };
 
   return (
     <div>
-      {[...Array(5)].map((_, index) => {
-        const ratingValue = index + 1;
-        let icon;
-
-        if (ratingValue <= rating) {
-          icon = <FaStar className="star text-yellow-500" />;
-        } else if (ratingValue - 0.5 <= rating) {
-          icon = <FaStarHalfAlt className="star" />;
-        } else {
-          icon = <FaStar className="star" />;
-        }
-
-        return (
-          <label key={ratingValue}>
-            <input
-              type="radio"
-              name="rating"
-              value={ratingValue}
-              onClick={() => handleRatingClick(ratingValue)}
-            />
-            {icon}
-          </label>
-        );
-      })}
-      <div className="rating-input-container">
-        <input
-          type="text"
-          className="rating-input"
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
-        />
-      </div>
-      <div className="comment-container">
-        <textarea
-          className="comment-input text-black"
-          placeholder="Enter your comment..."
-          value={comment}
-          onChange={handleCommentChange}
-        ></textarea>
-      </div>
-      <button className="submit-button" onClick={handleSubmit}>
-        Submit
-      </button>
+      <form onSubmit={handleUpload}>
+        <input type="file" onChange={handleFileChange} />
+        <button>Upload</button>
+      </form>
     </div>
   );
 }
 
-export default StarRating;
+export default UploadProfilePic;

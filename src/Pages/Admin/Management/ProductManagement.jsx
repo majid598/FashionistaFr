@@ -136,7 +136,7 @@ const ProductManagement = () => {
               <div className="flex gap-20">
                 <div className="w-44 h-44 bg-white">
                   <img
-                    src={`${server}/${data?.product?.images[0]}`}
+                    src={data?.product?.images[0]}
                     className="w-full h-full"
                     alt=""
                   />
@@ -160,15 +160,15 @@ const ProductManagement = () => {
                   <h2 className="mt-4">Stock : {data?.product?.stock}</h2>
                 </div>
               </div>
-              <div className="w-full h-12 mt-6 flex">
+              <div className="w-full h-12 mt-6 flex gap-2">
                 {data?.product?.images?.map((img) => (
                   <button
                     type="button"
-                    className="w-12 h-full focus:ring-4 rounded-xl p-1 border-sky-500"
+                    className="w-12 h-full focus:ring-4 rounded-md overflow-hidden border-sky-500"
                   >
-                    <div className="w-full h-full bg-white/70 overflow-hidden rounded-xl">
+                    <div className="w-full h-full bg-white/70">
                       <img
-                        src={`${server}/${img}`}
+                        src={img}
                         className="w-full h-full"
                         alt=""
                       />

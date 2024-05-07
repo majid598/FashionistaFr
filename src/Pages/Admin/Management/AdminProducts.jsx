@@ -37,8 +37,8 @@ const AdminProducts = () => {
                 >
                   <div className="w-16 h-16 rounded-full bg-zinc-300 overflow-hidden">
                     <img
-                      src={`http://localhost:5000/${product.images[0]}`}
-                      className="w-full h-full object-contain"
+                      src={product.images[0]}
+                      className="w-full h-full object-cover"
                       alt=""
                     />
                   </div>

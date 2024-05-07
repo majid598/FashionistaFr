@@ -72,7 +72,10 @@ const Header = ({ user }) => {
               className="border-2 border-white rounded-full"
             >
               {user?.profile ? (
-                <img src={user?.profile} className="w-8 h-8 rounded-full" />
+                <img
+                  src={user?.profile}
+                  className="w-8 h-8 rounded-full"
+                />
               ) : (
                 <FaUser className="text-xl" />
               )}
@@ -130,7 +133,7 @@ const Header = ({ user }) => {
                   My Orders
                 </Link>
                 <Link
-                to={"/cancelations"}
+                  to={"/cancelations"}
                   onClick={() => setIsProfile(false)}
                   className="w-full h-1/5 flex items-center justify-center font-semibold border-b-[1px] hover:bg-black/30 cursor-pointer"
                 >

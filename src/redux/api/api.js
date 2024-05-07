@@ -44,6 +44,15 @@ export const api = createApi({
       query: (id) => `user/admin/${id}`,
       providesTags: ["User"],
     }),
+    userUpload: builder.mutation({
+      query: (profile) => ({
+        url: "user/upload",
+        method: "POST",
+        body: profile,
+        credentials: "include",
+      }),
+      invalidatesTags: ["User"],
+    }),
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `admin/user/${id}`,
@@ -147,6 +156,7 @@ export const {
   useDeleteNotificationMutation,
   useGetAllUsersQuery,
   useGetUserByIdQuery,
+  useUserUploadMutation,
   useDeleteUserMutation,
   useEditUserRoleMutation,
   useDeleteProductMutation,

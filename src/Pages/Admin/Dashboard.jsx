@@ -8,6 +8,7 @@ import { useState } from "react";
 import Notification from "../../Components/Admin/Notification";
 import { useGetAllNotificationsQuery } from "../../redux/api/api";
 import { Link } from "react-router-dom";
+import { server } from "../../redux/store";
 
 const Dashboard = ({ user }) => {
   const [isNotification, setisNotification] = useState(false);
@@ -59,7 +60,11 @@ const Dashboard = ({ user }) => {
               to={`/user/profile`}
               className="w-10 h-10 inline-block border-white border-2 rounded-full bg-white overflow-hidden"
             >
-              <img src={user?.profile} className="w-full h-full" alt="" />
+              <img
+                src={user?.profile}
+                className="w-full h-full"
+                alt=""
+              />
             </Link>
           </div>
         </div>

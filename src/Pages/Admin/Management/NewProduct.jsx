@@ -6,12 +6,15 @@ import { useNewProductMutation } from "../../../redux/api/api";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../../Components/Loader";
 
 const NewProduct = () => {
   const navigate = useNavigate();
   const [newProduct] = useNewProductMutation();
+  const [isLoading, setIsLoading] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
   const [images, setImages] = useState([]);
+  const [imageUrls, setImageUrls] = useState([]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -27,25 +30,51 @@ const NewProduct = () => {
   const [category, setCategory] = useState("");
 
   const submitHandler = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
+    const uploadPromises = images.map(async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "fashionista"); // Set up in Cloudinary dashboard
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("stock", stock);
-    formData.append("category", category);
-    formData.append("description", description);
-    images.forEach((image, index) => {
-      formData.append(`images`, image);
+      try {
+        const response = await axios.post(
+          "https://api.cloudinary.com/v1_1/dfmcsvthn/image/upload",
+          formData
+        );
+        const data = await response.json();
+        return data.secure_url; // Return the URL of the uploaded image
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        return null;
+      }
     });
 
-    try {
-      const { data } = await newProduct(formData);
-      toast.success(data?.message);
-      navigate("/admin/products");
-    } catch (err) {
-      toast.error(err?.response?.data?.message);
-    }
+    const uploadedImageUrls = await Promise.all(uploadPromises);
+    setImageUrls([
+      ...imageUrls,
+      ...uploadedImageUrls.filter((url) => url !== null),
+    ]);
+    const product = {
+      name,
+      price,
+      stock,
+      category,
+      description,
+      images: imageUrls,
+    };
+
+    newProduct(product)
+      .unwrap()
+      .then((data) => {
+        toast.success(data?.message);
+        // navigate("/admin/products");
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        toast.error(err?.data?.message);
+        setIsLoading(false);
+      });
   };
 
   const removeImage = (index) => {
@@ -59,6 +88,7 @@ const NewProduct = () => {
   };
   return (
     <AdminLayout>
+      {isLoading && <Loader />}
       <div className="w-fix h-calc p-20 bg-white/10">
         <div className="w-full h-full bg-white/5 flex gap-10">
           <form className="w-full flex gap-10" onSubmit={submitHandler}>

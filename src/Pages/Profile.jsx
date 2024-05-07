@@ -1,21 +1,28 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import Loader from "../Components/Loader";
 import axios from "axios";
+import { useUserUploadMutation } from "../redux/api/api";
+import { server } from "../redux/store";
 
 const Profile = ({ user }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [popup, setPopup] = useState(false);
   const [img, setImg] = useState("");
+  const [imgSend, setImgSend] = useState("");
   const inp = () => {
     document.getElementById("inp").click();
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    setImgSend(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImg(reader.result);
+        console.log(img, imgSend);
       };
       reader.readAsDataURL(file);
     } else {
@@ -23,39 +30,45 @@ const Profile = ({ user }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [upload] = useUserUploadMutation();
 
+  const handleSubmit = async (e) => {
+    setIsLoading(true);
+    e.preventDefault();
+    var profile;
     const formData = new FormData();
-    formData.append("userId", user._id);
-    formData.append("profile", img);
+    formData.append("file", imgSend);
+    formData.append("upload_preset", "fashionista"); // Set up in Cloudinary dashboard
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/user/upload`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        "https://api.cloudinary.com/v1_1/dfmcsvthn/image/upload",
+        formData
       );
-      // dispatch(userExists(data.user));
-      console.log(response.data);
-      toast.success(response.data?.message);
-      // You can save the token to localStorage or use Redux for state management
+      profile = response.data.secure_url; // Return the URL of the uploaded image
+      console.log(profile);
     } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log(error?.response?.data?.message);
-    } finally {
-      setPopup(false);
-      setImg("");
+      console.error("Error uploading image:", error);
+      return null;
     }
+    upload({ profile })
+      .unwrap()
+      .then((data) => {
+        setPopup(false);
+        setImgSend("");
+        toast.success(data?.message);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log("error was : ", err);
+        toast.error(err?.data?.message);
+        setIsLoading(false);
+      });
   };
 
   return (
     <div className="w-full min-h-screen relative">
+      {isLoading && <Loader />}
       {popup && (
         <div className="w-full h-[calc(100vh-5rem)] fixed flex items-center justify-center top-0 left-0 bg-black/60">
           <div className="w-2/5 h-3/5 bg-white rounded-2xl overflow-hidden">
@@ -72,7 +85,7 @@ const Profile = ({ user }) => {
                 />
                 <div className="w-52 h-52 rounded-full overflow-hidden bg-white flex items-center justify-center mt-14">
                   {img ? (
-                    <img src={img} alt="" />
+                    <img src={img} className="w-full h-full" alt="" />
                   ) : (
                     <button
                       onClick={inp}
@@ -143,7 +156,11 @@ const Profile = ({ user }) => {
           <h2>Photo</h2>
           <div className="flex gap-10 mt-5 items-center">
             <div className="w-40 h-40 overflow-hidden border-white border-2 rounded-full bg-white/10">
-              <img src={user.profile} className="w-full h-full" alt="" />
+              <img
+                src={user?.profile}
+                className="w-full h-full"
+                alt=""
+              />
             </div>
             <button
               onClick={() => setPopup(true)}
