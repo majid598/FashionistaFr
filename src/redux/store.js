@@ -4,7 +4,7 @@ import { notificationReducer, productReducer } from "./reducers/productReducer";
 import authSlice from "./reducers/userReducer";
 import cartReducer from "./reducers/cartReducer";
 
-export const server = "http://localhost:5000";
+export const server = "https://fashionistabackend.onrender.com";
 
 export const store = configureStore({
   reducer: {
