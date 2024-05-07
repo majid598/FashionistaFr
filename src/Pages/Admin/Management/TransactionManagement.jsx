@@ -86,7 +86,7 @@ const TransactionManagement = () => {
                 className="h-40 w-full bg-white/5 rounded-xl mt-5 p-4 flex"
               >
                 <img
-                  src={`${server}/${item.img}`}
+                  src={item.img}
                   className="h-full w-36 rounded-xl"
                   alt=""
                 />
