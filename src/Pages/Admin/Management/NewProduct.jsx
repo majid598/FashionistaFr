@@ -42,7 +42,7 @@ const NewProduct = () => {
           "https://api.cloudinary.com/v1_1/dfmcsvthn/image/upload",
           formData
         );
-        return response.data.secure_url;
+        return response.data.secure_url; // Return the URL of the uploaded image
       } catch (error) {
         console.error("Error uploading image:", error);
         return null;
@@ -52,9 +52,9 @@ const NewProduct = () => {
     const uploadedImageUrls = await Promise.all(uploadPromises);
     setImageUrls([
       ...imageUrls,
-      ...uploadedImageUrls.filter((secure_url) => secure_url !== null),
+      ...uploadedImageUrls.filter((url) => url !== null),
     ]);
-    console.log(imageUrls)
+    console.log(imageUrls);
     const product = {
       name,
       price,
