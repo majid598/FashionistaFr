@@ -49,7 +49,6 @@ const NewProduct = () => {
       }
     }
 
-    console.log(imageUrls);
     const product = {
       name,
       price,

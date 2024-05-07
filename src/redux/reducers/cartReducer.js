@@ -61,12 +61,7 @@ const cartReducer = createSlice({
       const existingItem = state.items.find((item) => item.id === id);
 
       if (existingItem) {
-        if (existingItem.quantity === 1) {
-          state.items = state.items.filter((item) => item.id !== id);
-        } else {
-          existingItem.quantity -= 1;
-        }
-
+        state.items = state.items.filter((item) => item.id !== id);
         state.totalItems -= 1;
         state.totalPrice -= existingItem.price;
         saveCartState(state);

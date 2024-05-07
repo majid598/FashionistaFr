@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   addToCart,
+  calculatePrice,
   removeCartItem,
   removeFromCart,
   updateQuantity,
@@ -14,19 +15,21 @@ const CartItem = ({ item }) => {
   console.log(item);
   const dispatch = useDispatch();
 
-  const handleRemove = (id) => {
-    dispatch(removeFromCart({ id }));
+  const handleRemove = () => {
+    dispatch(removeFromCart({ id:item.id }));
     toast.success(`${item.name} Removed From Cart`);
   };
 
   const handleIncrement = () => {
     if (item.quantity >= item.stock) return;
     dispatch(addToCart(item));
+    dispatch(calculatePrice());
   };
 
   const handleDecrement = () => {
     if (item.quantity <= 1) return;
     dispatch(removeCartItem({ id: item.id }));
+    dispatch(calculatePrice());
   };
 
   const [quantity, setQuantity] = useState(1);
@@ -43,7 +46,7 @@ const CartItem = ({ item }) => {
       </div>
       <div className="w-1/6 h-full flex items-center justify-center gap-5 bg--300 relative">
         <button
-          onClick={() => handleRemove(item?.id)}
+          onClick={() => handleRemove()}
           className="absolute top-4 right-4"
         >
           <FaTrash />
