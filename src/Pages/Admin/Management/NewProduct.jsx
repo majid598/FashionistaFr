@@ -136,13 +136,13 @@ const NewProduct = () => {
               <Input
                 type="number"
                 name="price"
-                holder="Price"
+                holder="price"
                 value={price}
                 changeHandler={(e) => setPrice(e.target.value)}
               />
               <Input
                 type="number"
-                name="stock"
+                name="Price"
                 holder="stock"
                 value={stock}
                 changeHandler={(e) => setStock(e.target.value)}
