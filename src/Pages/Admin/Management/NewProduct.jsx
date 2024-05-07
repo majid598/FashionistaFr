@@ -14,7 +14,7 @@ const NewProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
   const [images, setImages] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
+  // const [imageUrls, setImageUrls] = useState([]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -31,8 +31,9 @@ const NewProduct = () => {
 
   const submitHandler = async (e) => {
     setIsLoading(true);
+    let imageUrls = [];
     e.preventDefault();
-    const uploadPromises = images.map(async (file) => {
+    for (const file of images) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "fashionista"); // Set up in Cloudinary dashboard
@@ -42,18 +43,12 @@ const NewProduct = () => {
           "https://api.cloudinary.com/v1_1/dfmcsvthn/image/upload",
           formData
         );
-        return response.data.secure_url; // Return the URL of the uploaded image
+        imageUrls = [...imageUrls,response.data.secure_url];
       } catch (error) {
         console.error("Error uploading image:", error);
-        return null;
       }
-    });
+    }
 
-    const uploadedImageUrls = await Promise.all(uploadPromises);
-    setImageUrls([
-      ...imageUrls,
-      ...uploadedImageUrls.filter((url) => url !== null),
-    ]);
     console.log(imageUrls);
     const product = {
       name,
