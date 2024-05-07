@@ -2,6 +2,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDebugValue, useState } from "react";
+import Loader from "../Components/Loader";
 import { toast } from "react-toastify";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
@@ -10,6 +11,7 @@ import { userExists } from "../redux/reducers/userReducer";
 import { server } from "../redux/store";
 
 const Signup = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
   const [userDetails, setUserDetails] = useState({
@@ -22,6 +24,7 @@ const Signup = () => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
   };
   const handlerSubmit = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -36,9 +39,10 @@ const Signup = () => {
       );
       dispatch(userExists(response?.data?.user));
       toast.success(response?.data?.message);
-      console.log(response?.data?.user);
+      setIsLoading(false);
       // You can save the token to localStorage or use Redux for state management
     } catch (error) {
+      setIsLoading(false);
       toast.error(error?.response?.data?.message);
     }
   };
@@ -74,6 +78,7 @@ const Signup = () => {
 
   return (
     <div className="h-calc flex flex-col items-center justify-center">
+      {isLoading && <Loader />}
       <h1 className="text-3xl">Sign up to shopping</h1>
       <div className="w-2/5 flex flex-col p-16 gap-3">
         <form onSubmit={handlerSubmit} className="flex flex-col gap-3 w-full">

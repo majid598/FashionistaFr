@@ -42,8 +42,7 @@ const NewProduct = () => {
           "https://api.cloudinary.com/v1_1/dfmcsvthn/image/upload",
           formData
         );
-        const data = await response.json();
-        return data.secure_url; // Return the URL of the uploaded image
+        return response.data.secure_url; // Return the URL of the uploaded image
       } catch (error) {
         console.error("Error uploading image:", error);
         return null;
@@ -68,7 +67,7 @@ const NewProduct = () => {
       .unwrap()
       .then((data) => {
         toast.success(data?.message);
-        // navigate("/admin/products");
+        navigate("/admin/products");
         setIsLoading(false);
       })
       .catch((err) => {

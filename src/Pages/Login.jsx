@@ -5,17 +5,20 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { server } from "../redux/store";
 import { userExists } from "../redux/reducers/userReducer";
+import Loader from "../Components/Loader";
 import { useDispatch } from "react-redux";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handlerSubmit = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -33,9 +36,11 @@ const Login = () => {
       );
       dispatch(userExists(true));
       toast.success(response.data?.message);
+      setIsLoading(false);
       // You can save the token to localStorage or use Redux for state management
     } catch (error) {
       toast.error(error?.response?.data?.message);
+      setIsLoading(false);
     }
   };
 
@@ -43,7 +48,6 @@ const Login = () => {
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-      // console.log(user);
       const response = await axios.post(
         `${server}/api/v1/user/login`,
         {
@@ -67,6 +71,7 @@ const Login = () => {
 
   return (
     <div className="h-calc flex flex-col items-center justify-center">
+      {isLoading && <Loader />}
       <h1 className="text-3xl">Log in to continue shopping</h1>
       <div className="w-2/5 h-white/10 flex flex-col p-16 gap-3">
         <form className="w-full flex flex-col gap-3" onSubmit={handlerSubmit}>
